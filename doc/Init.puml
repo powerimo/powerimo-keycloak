@@ -1,0 +1,18 @@
+@startuml
+
+participant Keycloak
+participant KcListenerFactory
+participant ConfigReader
+participant KcEventListener
+participant PublishingChannel
+
+Keycloak -> KcListenerFactory : create
+KcListenerFactory -> ConfigReader: read configuration
+ConfigReader --> KcListenerFactory: factory configuration
+KcListenerFactory -> KcEventListener: create
+
+group loop on channels list
+    KcListenerFactory -> PublishingChannel: create channel
+end
+
+@enduml
