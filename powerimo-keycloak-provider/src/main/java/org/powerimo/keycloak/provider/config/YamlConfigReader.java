@@ -8,7 +8,7 @@ import java.io.FileInputStream;
 
 public class YamlConfigReader {
     private static final Logger log = Logger.getLogger(YamlConfigReader.class);
-    public static final String DEFAULT_PATH = "powerimo-mq-listener-config.json";
+    public static final String DEFAULT_PATH = "/etc/keycloak-mq-sender/config.yaml";
     private String configFilePath = DEFAULT_PATH;
 
     public YamlConfigReader() {

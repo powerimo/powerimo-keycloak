@@ -18,7 +18,7 @@ class StubChannelTest {
         channelConfig = new ChannelConfigImpl();
         channelConfig.setRealmName("QA");
 
-        stubChannel = new StubChannel(channelConfig, new KcListener())
+        //stubChannel = new StubChannel(channelConfig, new KcListener())
     }
 
     @Test

@@ -16,6 +16,8 @@ import java.util.Objects;
 
 public class KcListenerFactory implements EventListenerProviderFactory {
     private static final Logger log = Logger.getLogger(KcListenerFactory.class);
+    private static final String SPI_ID = "mq-sender";
+    private static final String CONFIG_FILE_PROPERTY = SPI_ID + "-config-file";
     private YamlConfigReader yamlConfigReader;
 
     @Override
@@ -41,32 +43,32 @@ public class KcListenerFactory implements EventListenerProviderFactory {
 
     @Override
     public void init(Config.Scope scope) {
-        log.info("Powerimo Event Listener initialized...");
+        log.infof("%s initialized...", SPI_ID);
         var names = scope.getPropertyNames();
         log.info(names.toString());
 
-        var configFilePath = scope.get("powerimo-event-listener.config-path");
-        if (configFilePath != null) {
+        var configFilePath = scope.get(SPI_ID);
+        if (configFilePath == null) {
             configFilePath = YamlConfigReader.DEFAULT_PATH;
         }
         yamlConfigReader  = new YamlConfigReader(configFilePath);
 
-        log.info("Powerimo Event Listener initialization complete.");
+        log.infof("%s initialization complete.", SPI_ID);
     }
 
     @Override
     public void postInit(KeycloakSessionFactory keycloakSessionFactory) {
-        log.info("powerimo-event-listener factory started");
+        log.infof("%s factory started", SPI_ID);
     }
 
     @Override
     public void close() {
-        log.info("powerimo-event-listener factory closed");
+        log.infof("%s factory closed", SPI_ID);
     }
 
     @Override
     public String getId() {
-        return "powerimo-event-listener";
+        return SPI_ID;
     }
 
     private PublishingChannel createPublishingChannel(@NonNull ChannelConfig config, @NonNull KcListener listener) {
