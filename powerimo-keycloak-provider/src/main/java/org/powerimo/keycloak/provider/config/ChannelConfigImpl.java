@@ -15,6 +15,8 @@ public class ChannelConfigImpl implements ChannelConfig{
     private String url;
     private String user;
     private String password;
+    private String exchange;
+    private String routingKey;
 
     @Override
     public String getChannelClassName() {
@@ -39,5 +41,15 @@ public class ChannelConfigImpl implements ChannelConfig{
     @Override
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getExchange() {
+        return exchange;
+    }
+
+    @Override
+    public String getRoutingKey() {
+        return routingKey;
     }
 }

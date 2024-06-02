@@ -1,6 +1,7 @@
 FROM quay.io/keycloak/keycloak:24.0.4 as base
 
-COPY ./powerimo-keycloak-provider/target/*.jar /opt/keycloak/providers/
+COPY ./powerimo-keycloak-provider/target/powerimo-*-shaded.jar /opt/keycloak/providers/
+COPY ./powerimo-keycloak-common/target/powerimo-*.jar /opt/keycloak/providers/
 
 EXPOSE 8080
 

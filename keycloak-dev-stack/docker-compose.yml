@@ -1,0 +1,33 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: local-rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "15671:15671"
+    volumes:
+      # - ./rabbitmq/data:/var/lib/rabbitmq
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ./rabbitmq/conf.d/90-definitions.conf:/etc/rabbitmq/conf.d/90-definitions.conf
+    networks:
+      - rabbitmq_network
+
+  local-keycloak:
+    image: local-keycloak
+    container_name: local-keycloak
+    depends_on:
+      - rabbitmq
+    ports:
+      - "1000:8080"
+    volumes:
+      - ./keycloak/mq-config:/etc/keycloak-mq-sender
+      - ./keycloak/realm-import:/opt/keycloak/data/import
+    command: start-dev --import-realm
+    networks:
+      - rabbitmq_network
+
+networks:
+  rabbitmq_network:
+    driver: bridge

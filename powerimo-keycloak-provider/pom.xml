@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.sportardor</groupId>
+        <groupId>org.powerimo</groupId>
         <artifactId>powerimo-keycloak</artifactId>
         <version>${revision}</version>
     </parent>
@@ -19,7 +19,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.sportardor</groupId>
+            <groupId>org.powerimo</groupId>
             <artifactId>powerimo-keycloak-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -65,11 +65,85 @@
         </dependency>
 
         <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>${rabbit.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.9.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>maven_central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.keycloak:keycloak-core</exclude>
+                                    <exclude>org.keycloak:keycloak-server-spi</exclude>
+                                    <exclude>org.keycloak:keycloak-server-spi-private</exclude>
+                                    <exclude>org.keycloak:keycloak-common</exclude>
+                                    <exclude>org.powerimo:powerimo-keycloak-common</exclude>
+                                    <exclude>com.fasterxml.jackson.core</exclude>
+                                    <exclude>com.fasterxml.jackson.datatype</exclude>
+                                    <exclude>com.fasterxml.jackson.core:jackson-annotations</exclude>
+                                    <exclude>jakarta.activation:jakarta.activation-api</exclude>
+                                    <exclude>org.eclipse.microprofile.openapi:microprofile-openapi-api</exclude>
+                                    <exclude>org.projectlombok:lombok</exclude>
+                                    <exclude>org.yaml:snakeyaml</exclude>
+                                    <exclude>org.slf4j:slf4j-api</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Dependencies><![CDATA[com.rabbitmq.amqp-client,]]></Dependencies>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <!-- Your custom configuration goes here -->
+                </configuration>
+            </plugin>
+        </plugins>
+
+    </build>
 
 </project>

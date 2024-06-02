@@ -16,8 +16,8 @@ import java.util.Objects;
 
 public class KcListenerFactory implements EventListenerProviderFactory {
     private static final Logger log = Logger.getLogger(KcListenerFactory.class);
-    private static final String SPI_ID = "mq-sender";
-    private static final String CONFIG_FILE_PROPERTY = SPI_ID + "-config-file";
+    public static final String SPI_ID = "mq-sender";
+    public static final String CONFIG_FILE_PROPERTY = SPI_ID + "-config-file";
     private YamlConfigReader yamlConfigReader;
 
     @Override
@@ -34,10 +34,10 @@ public class KcListenerFactory implements EventListenerProviderFactory {
         for (var channelConfig : config.getChannels()) {
             var childChannel = createPublishingChannel(channelConfig, listener);
             hostChannel.addChannel(childChannel);
-            log.infof("Created publishing channel: %s; config: %s", childChannel, channelConfig);
+            log.debugf("Created publishing channel: %s; config: %s", childChannel, channelConfig);
         }
 
-        log.info("Listener created");
+        log.debugf("Listener created");
         return listener;
     }
 
@@ -47,7 +47,7 @@ public class KcListenerFactory implements EventListenerProviderFactory {
         var names = scope.getPropertyNames();
         log.info(names.toString());
 
-        var configFilePath = scope.get(SPI_ID);
+        var configFilePath = scope.get(CONFIG_FILE_PROPERTY);
         if (configFilePath == null) {
             configFilePath = YamlConfigReader.DEFAULT_PATH;
         }
@@ -74,12 +74,16 @@ public class KcListenerFactory implements EventListenerProviderFactory {
     private PublishingChannel createPublishingChannel(@NonNull ChannelConfig config, @NonNull KcListener listener) {
         PublishingChannel publishingChannel;
 
-        if (Objects.equals(config.getChannelClassName(), RabbitMqChannel.class.getName())) {
-            publishingChannel = new RabbitMqChannel(config, listener);
-        } else if (Objects.equals(config.getChannelClassName(),StubChannel.class.getName())) {
-            publishingChannel = new StubChannel(config, listener);
-        } else {
-            publishingChannel = new RabbitMqChannel(config, listener);
+        try {
+            if (Objects.equals(config.getChannelClassName(), RabbitMqChannel.class.getName())) {
+                publishingChannel = new RabbitMqChannel(config, listener);
+            } else if (Objects.equals(config.getChannelClassName(), StubChannel.class.getName())) {
+                publishingChannel = new StubChannel(config, listener);
+            } else {
+                publishingChannel = new RabbitMqChannel(config, listener);
+            }
+        } catch (Exception ex) {
+            throw new PowerimoKeycloakProviderException("Exception on creating channel", ex);
         }
 
         return publishingChannel;

@@ -1,1 +1,1 @@
-{"eventType":"keycloak.event","event":"SAMPLE_EVENT","server":"localhost","objectType":null,"objectId":null,"realmId":"TEST","realmName":null,"error":null,"eventTime":"2024-05-29T09:18:36.000000001Z"}
+{"eventType":"keycloak.event","event":"SAMPLE_EVENT","server":"localhost","realmId":"TEST","realmName":null,"error":null,"userId":null,"details":null,"ipAddress":null,"eventId":null,"representation":null,"eventTime":"2024-05-29T09:18:36.000000001Z","time":0}

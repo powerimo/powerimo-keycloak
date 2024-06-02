@@ -1,0 +1,18 @@
+enabled: true
+serverId: qa
+channels:
+  - id: channel01
+    channelClassName: RabbitMqChannel
+    realmName: dev
+    enabled: true
+    url: amqp://rabbitmq
+    user: guest
+    password: guest
+    exchange: amq.topic
+  - id: channel02
+    realmName: dev
+    enabled: false
+    url: amqp://rabbitmq
+    user: guest
+    password: guest
+    exchange: amq.direct

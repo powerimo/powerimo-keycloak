@@ -8,4 +8,6 @@ public interface ChannelConfig {
     String getUser();
     String getPassword();
     String getRealmName();
+    String getExchange();
+    String getRoutingKey();
 }

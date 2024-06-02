@@ -6,9 +6,12 @@ import org.jboss.logging.Logger;
 import org.keycloak.events.Event;
 import org.keycloak.events.admin.AdminEvent;
 import org.powerimo.keycloak.KcConst;
+import org.powerimo.keycloak.KcEvent;
 import org.powerimo.keycloak.provider.KcListener;
 import org.powerimo.keycloak.provider.PublishingChannel;
 import org.powerimo.keycloak.provider.config.ChannelConfig;
+
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -47,9 +50,14 @@ public abstract class AbstractChannel implements PublishingChannel {
         }
 
         // extract Realm Name from the event;
-        var realmName = listener.getSession().realms().getRealm(realmId);
+        var realm = listener.getSession().realms().getRealm(realmId);
+        if (realm == null) {
+            log.debugf("Realm does not exist. Channel " + getClass().getSimpleName() + " realm name is " + config.getRealmName());
+            return false;
+        }
+        log.debugf("resolved realm name: %s", realm.getName());
 
-        if (config.getRealmName().equals(realmName)) {
+        if (realm.getName().equalsIgnoreCase(config.getRealmName())) {
             return true;
         }
 
@@ -60,18 +68,71 @@ public abstract class AbstractChannel implements PublishingChannel {
     public void processAdminEvent(AdminEvent adminEvent, KcListener listener) {
         var isEventAcceptable = isEventAcceptable(adminEvent);
         if (isEventAcceptable) {
+            log.debugf("message is acceptable: %s for config %s", eventToString(adminEvent), config);
             adminEvent(adminEvent, listener);
+        } else {
+            log.debugf("message is not acceptable: %s for config %s", eventToString(adminEvent), config);
         }
+
     }
 
     @Override
     public void processEvent(Event event, KcListener listener) {
         var isEventAcceptable = isEventAcceptable(event);
         if (isEventAcceptable) {
+            log.debugf("message is acceptable: %s for config %s", eventToString(event), config);
             event(event, listener);
+        } else {
+            log.debugf("message is not acceptable: %s for config %s", eventToString(event), config);
         }
     }
 
     protected abstract void adminEvent(AdminEvent adminEvent, KcListener listener);
     protected abstract void event(Event event, KcListener listener);
+
+    public KcEvent convert(AdminEvent event) {
+        return KcEvent.builder()
+                .eventType("AdminEvent")
+                .realmId(event.getRealmId())
+                .realmName(getListener().extractRealmName(event))
+                .error(event.getError())
+                .event(event.getOperationType().name())
+                .time(event.getTime())
+                .eventId(event.getId())
+                .representation(event.getRepresentation())
+                .build();
+    }
+
+    public KcEvent convert(Event event) {
+        return KcEvent.builder()
+                .eventType("Event")
+                .realmId(event.getRealmId())
+                .realmName(getListener().extractRealmName(event))
+                .error(event.getError())
+                .event(event.getType().name())
+                .userId(event.getUserId())
+                .server(getListener().getListenerConfig().getServerId())
+                .time(event.getTime())
+                .details(event.getDetails())
+                .ipAddress(event.getIpAddress())
+                .eventId(event.getId())
+                .build();
+    }
+
+    public static String eventToString(Event event) {
+        return "Event(" +
+                "realmId=" + event.getRealmId() +
+                ",error=" + event.getError() +
+                ",type=" + event.getType() +
+                ",userId=" + event.getUserId() +
+                ")";
+    }
+
+    public static String eventToString(AdminEvent event) {
+        return "Event(" +
+                "realmId=" + event.getRealmId() +
+                ",error=" + event.getError() +
+                ",operationType=" + event.getOperationType() +
+                ")";
+    }
 }

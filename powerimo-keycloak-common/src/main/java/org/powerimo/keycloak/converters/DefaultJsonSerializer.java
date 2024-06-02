@@ -7,6 +7,8 @@ import org.powerimo.keycloak.KcEvent;
 import org.powerimo.keycloak.MessageSerializer;
 import org.powerimo.keycloak.PowerimoKeycloakException;
 
+import java.nio.charset.StandardCharsets;
+
 public class DefaultJsonSerializer implements MessageSerializer {
     private final ObjectMapper objectMapper;
 
@@ -35,9 +37,10 @@ public class DefaultJsonSerializer implements MessageSerializer {
     }
 
     @Override
-    public String serialize(Object obj) {
+    public byte[] serialize(Object obj) {
         try {
-            return objectMapper.writeValueAsString(obj);
+            var s =  objectMapper.writeValueAsString(obj);
+            return s.getBytes(StandardCharsets.UTF_8);
         } catch (Exception ex) {
             throw new PowerimoKeycloakException("Exception on convert object to JSON", ex);
         }

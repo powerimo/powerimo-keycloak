@@ -4,6 +4,7 @@ import org.powerimo.keycloak.KcConst;
 import org.powerimo.keycloak.KcEvent;
 import org.powerimo.keycloak.KcUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -34,9 +35,10 @@ class DefaultJsonConverterTest {
                 .event("SAMPLE_EVENT")
                 .eventTime(LocalDateTime.of(2024, 5, 29, 9, 18, 36, 1).toInstant(ZoneOffset.UTC))
                 .build();
-        var s = converter.serialize(event);
+        var byteData = converter.serialize(event);
+        String s = new String(byteData, StandardCharsets.UTF_8);
 
-        assertNotNull(s);
+        assertNotNull(byteData);
 
         var sample = KcUtils.loadResource("sample_event.json");
         assertEquals(sample, s);
