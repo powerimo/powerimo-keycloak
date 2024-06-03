@@ -19,6 +19,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.powerimo</groupId>
+            <artifactId>powerimo-keycloak-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
             <version>${rabbit.version}</version>
