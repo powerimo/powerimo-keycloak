@@ -8,6 +8,11 @@
     <artifactId>powerimo-keycloak</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
+
+    <name>Powerimo Keycloak integration parent module</name>
+    <description>Common Powerimo Library for integration with Keycloak</description>
+    <url>https://github.com/powerimo/powerimo-keycloak</url>
+
     <modules>
         <module>powerimo-keycloak-common</module>
         <module>powerimo-keycloak-provider</module>
@@ -25,8 +30,107 @@
         <rabbit.version>5.21.0</rabbit.version>
     </properties>
 
-    <dependencies>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-    </dependencies>
+    <developers>
+        <developer>
+            <id>andewil</id>
+            <name>Oleg Voronin</name>
+            <email>app@andewil.com</email>
+            <url>https://github.com/andewil</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/powerimo/powerimo-keycloak.git</connection>
+        <developerConnection>scm:git:ssh://github.com/powerimo/powerimo-keycloak.git</developerConnection>
+        <url>https://github.com/powerimo/powerimo-keycloak</url>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <flattenMode>minimum</flattenMode>
+                </configuration>
+                <executions>
+                    <!-- enable flattening -->
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <!-- ensure proper cleanup -->
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

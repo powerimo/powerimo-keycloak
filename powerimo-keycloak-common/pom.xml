@@ -9,7 +9,11 @@
         <version>${revision}</version>
     </parent>
 
+
     <artifactId>powerimo-keycloak-common</artifactId>
+    <name>Powerimo Keycloak integration common library</name>
+    <packaging>jar</packaging>
+    <description>Contains common classes for the integration module</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -59,4 +63,72 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>andewil</id>
+            <name>Oleg Voronin</name>
+            <email>app@andewil.com</email>
+            <url>https://github.com/andewil</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/powerimo/powerimo-keycloak.git</connection>
+        <developerConnection>scm:git:ssh://github.com/powerimo/powerimo-keycloak.git</developerConnection>
+        <url>https://github.com/powerimo/powerimo-keycloak</url>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>ossrh</publishingServerId>
+                    <tokenAuth>true</tokenAuth>
+                    <excludeArtifacts>
+                        <excludeArtifact>powerimo-keycloak-example-consumer</excludeArtifact>
+                        <excludeArtifact>powerimo-keycloak-provider</excludeArtifact>
+                    </excludeArtifacts>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
