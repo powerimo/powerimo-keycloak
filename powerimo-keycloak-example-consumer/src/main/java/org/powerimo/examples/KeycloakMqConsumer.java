@@ -1,7 +1,6 @@
 package org.powerimo.examples;
 
 import com.rabbitmq.client.*;
-import org.powerimo.keycloak.KcEvent;
 import org.powerimo.keycloak.MessageSerializer;
 import org.powerimo.keycloak.converters.DefaultJsonSerializer;
 

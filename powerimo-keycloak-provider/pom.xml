@@ -17,6 +17,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Powerimo Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/powerimo/powerimo-keycloak</url>
+        </repository>
+        <snapshotRepository>
+            <id>github</id>
+            <name>GitHub Powerimo Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/powerimo/powerimo-keycloak</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.powerimo</groupId>
@@ -140,6 +153,14 @@
                 <version>3.2.2</version>
                 <configuration>
                     <!-- Your custom configuration goes here -->
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
                 </configuration>
             </plugin>
         </plugins>

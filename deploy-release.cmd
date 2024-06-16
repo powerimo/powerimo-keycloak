@@ -1,0 +1,1 @@
+mvn clean deploy -Drevision=1.0.1 -P ossrh
