@@ -13,8 +13,6 @@ public class KeycloakMqConsumer {
     private final static int PORT = 5672;
 
     public static void main(String[] args) throws Exception {
-        System.out.println("* KeycloakMqConsumer started");
-
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(HOST);
         factory.setPort(PORT);
@@ -39,6 +37,7 @@ public class KeycloakMqConsumer {
             }
         };
         channel.basicConsume(QUEUE_NAME, true, consumer);
+        System.out.println("* KeycloakMqConsumer started");
     }
 
 }

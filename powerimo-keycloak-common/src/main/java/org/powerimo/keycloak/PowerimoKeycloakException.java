@@ -1,5 +1,8 @@
 package org.powerimo.keycloak;
 
+/**
+ * Base exception for Powerimo Keycloak libraries and applications
+ */
 public class PowerimoKeycloakException extends RuntimeException {
     public PowerimoKeycloakException() {
         super();

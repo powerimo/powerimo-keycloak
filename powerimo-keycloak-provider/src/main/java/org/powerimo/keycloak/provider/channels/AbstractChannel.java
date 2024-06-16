@@ -11,8 +11,6 @@ import org.powerimo.keycloak.provider.KcListener;
 import org.powerimo.keycloak.provider.PublishingChannel;
 import org.powerimo.keycloak.provider.config.ChannelConfig;
 
-import java.util.Objects;
-
 @Getter
 @Setter
 public abstract class AbstractChannel implements PublishingChannel {
@@ -92,7 +90,7 @@ public abstract class AbstractChannel implements PublishingChannel {
 
     public KcEvent convert(AdminEvent event) {
         return KcEvent.builder()
-                .eventType("AdminEvent")
+                .eventType(KcConst.KC_ADMIN_EVENT)
                 .realmId(event.getRealmId())
                 .realmName(getListener().extractRealmName(event))
                 .error(event.getError())
@@ -105,13 +103,13 @@ public abstract class AbstractChannel implements PublishingChannel {
 
     public KcEvent convert(Event event) {
         return KcEvent.builder()
-                .eventType("Event")
+                .eventType(KcConst.KC_EVENT)
                 .realmId(event.getRealmId())
                 .realmName(getListener().extractRealmName(event))
                 .error(event.getError())
                 .event(event.getType().name())
                 .userId(event.getUserId())
-                .server(getListener().getListenerConfig().getServerId())
+                .serverId(getListener().getListenerConfig().getServerId())
                 .time(event.getTime())
                 .details(event.getDetails())
                 .ipAddress(event.getIpAddress())

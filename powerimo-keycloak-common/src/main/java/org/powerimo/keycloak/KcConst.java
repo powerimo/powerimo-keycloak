@@ -1,7 +1,17 @@
 package org.powerimo.keycloak;
 
+/**
+ * Constants for the Powerimo Keycloak libraries and applications
+ */
 public class KcConst {
+    /**
+     * EventType: regular Keycloak event, such as "REGISTER", "LOGIN"
+     */
     public static final String KC_EVENT = "keycloak.event";
+
+    /**
+     * EventType: Admin Event,
+     */
     public static final String KC_ADMIN_EVENT = "keycloak.admin-event";
 
     public static final String ALL_REALMS = "ALL_REALMS";

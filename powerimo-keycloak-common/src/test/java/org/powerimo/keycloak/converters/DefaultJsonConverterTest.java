@@ -29,7 +29,7 @@ class DefaultJsonConverterTest {
     void serialize() {
         var converter = new DefaultJsonSerializer();
         var event = KcEvent.builder()
-                .server("localhost")
+                .serverId("localhost")
                 .eventType(KcConst.KC_EVENT)
                 .realmId("TEST")
                 .event("SAMPLE_EVENT")
