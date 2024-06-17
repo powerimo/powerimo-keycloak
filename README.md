@@ -1,4 +1,4 @@
-# Powerimo Keycloak -> Rabbit MQ provider
+# Keycloak to Rabbit MQ provider
 
 ## Overview
 
@@ -9,6 +9,8 @@ The purpose of this provider is to publish Keycloak events to a RabbitMQ server 
 ### Basics
 
 According to the Keycloak documentation, all providers should be packaged into JAR files and copied to the "providers" directory. You can find more information [here](https://www.keycloak.org/server/configuration-provider).
+
+You can use the  
 
 ### Docker
 
