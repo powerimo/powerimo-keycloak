@@ -1,4 +1,4 @@
-pushd keycloak-dev-stack
+pushd ..\keycloak-dev-stack
 
 docker-compose down > nul
 

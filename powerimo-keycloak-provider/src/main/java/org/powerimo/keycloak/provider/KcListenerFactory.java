@@ -22,15 +22,16 @@ public class KcListenerFactory implements EventListenerProviderFactory {
 
     @Override
     public KcListener create(KeycloakSession keycloakSession) {
+         var config = yamlConfigReader.readConfig();
+
         // create a listener
-        var listener = new KcListener(keycloakSession, yamlConfigReader.readConfig());
+        var listener = new KcListener(keycloakSession, config);
 
         // create default Publishing channel as a parent to child channels
         HostChannel hostChannel = new HostChannel();
         listener.setPublishingChannel(hostChannel);
 
         // setup child channels
-        var config = yamlConfigReader.readConfig();
         for (var channelConfig : config.getChannels()) {
             var childChannel = createPublishingChannel(channelConfig, listener);
             hostChannel.addChannel(childChannel);
@@ -52,6 +53,9 @@ public class KcListenerFactory implements EventListenerProviderFactory {
             configFilePath = YamlConfigReader.DEFAULT_PATH;
         }
         yamlConfigReader  = new YamlConfigReader(configFilePath);
+
+        var isConfigFileExist = yamlConfigReader.isConfigFileExist();
+        log.infof("Config file is exist: %s; path: %s", isConfigFileExist, configFilePath);
 
         log.infof("%s initialization complete.", SPI_ID);
     }

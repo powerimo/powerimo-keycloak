@@ -36,6 +36,8 @@ public class RabbitMqChannel extends AbstractChannel {
 
         connectionFactory = new ConnectionFactory();
         connectionFactory.setUri(channelConfig.getUrl());
+        connectionFactory.setUsername(channelConfig.getUser());
+        connectionFactory.setPassword(channelConfig.getPassword());
     }
 
 

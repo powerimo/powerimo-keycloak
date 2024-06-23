@@ -30,4 +30,15 @@ public class YamlConfigReaderTest {
         assertTrue(item1.isEnabled());
         assertEquals("amqp://server01", item1.getUrl());
     }
+
+    @Test
+    public void readConfig_NotExistFile() {
+        String filePath = "non-existing.yaml";
+
+        YamlConfigReader reader = new YamlConfigReader(filePath);
+        var config = reader.readConfig();
+
+        assertNotNull(config);
+        assertFalse(config.isEnabled());
+    }
 }

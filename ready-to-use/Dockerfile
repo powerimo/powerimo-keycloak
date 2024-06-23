@@ -17,12 +17,6 @@ COPY --from=downloader /tmp/providers/* /opt/keycloak/providers/
 
 EXPOSE 8080
 
-##########################
-# CHANGE IT OR REMOVE !!!
-##########################
-ENV KEYCLOAK_ADMIN=admin
-ENV KEYCLOAK_ADMIN_PASSWORD=admin
-
 RUN /opt/keycloak/bin/kc.sh build
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]

@@ -10,14 +10,16 @@ The purpose of this provider is to publish Keycloak events to a RabbitMQ server 
 
 According to the Keycloak documentation, all providers should be packaged into JAR files and copied to the "providers" directory. You can find more information [here](https://www.keycloak.org/server/configuration-provider).
 
-You can use the  
+### Docker "Ready-to-use" 
 
-### Docker
-
-The easiest way to automate the integration process is to build your own Docker image. You can see an example Dockerfile [here](https://github.com/powerimo/powerimo-keycloak/blob/master/Dockerfile)
+The easiest way to automate the integration process is to build your own Docker image. You can see an example Dockerfile [here](ready-to-use)
 
 When the provider installed correctly you can find the following lines in Keycloak log: 
 ![START](/doc/html/start_provider.png)
+
+### Docker compose
+
+The example is [here](keycloak-dev-stack). 
 
 ## Setup
 
