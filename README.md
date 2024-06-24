@@ -84,9 +84,9 @@ The following properties are used:
 - Header `Event-Type` - original Keycloak event class name (`Event`, `AdminEvent`).
 - Header `Server-Id` - serverId property value from the configuration file.
 
-## Payload
+## Payloads
 
-Example:
+### Event LOGIN:
 
 ```
 {
@@ -109,6 +109,83 @@ Example:
     "representation": null,
     "eventTime": "2024-06-16T14:47:02.287564251Z",
     "time": 1718549222287
+}
+```
+
+### Event REGISTER (Google)
+
+```
+{
+    "eventType": "keycloak.event",
+    "event": "REGISTER",
+    "serverId": "qa",
+    "realmId": "d401709e-ebdd-4710-b85f-0e5cc282c38b",
+    "realmName": "dev",
+    "error": null,
+    "userId": "765257b7-4e1c-4c27-aa3a-74bb90283a51",
+    "details": {
+        "identity_provider": "google",
+        "register_method": "broker",
+        "identity_provider_identity": "sportardor@gmail.com",
+        "code_id": "01b161d8-c036-4f8e-89e5-db13b63e3171",
+        "email": "someuser@gmail.com",
+        "username": "someuser@gmail.com"
+    },
+    "ipAddress": "1.1.1.1",
+    "eventId": "d3702ece-bce1-49a3-ac8d-386735597ae3",
+    "representation": null,
+    "eventTime": "2024-06-24T05:52:54.094138862Z",
+    "time": 1719208374093
+};
+```
+
+### Admin event CREATE user
+
+```
+{
+    "eventType": "keycloak.admin-event",
+    "event": "CREATE",
+    "serverId": "qa",
+    "realmId": "d401709e-ebdd-4710-b85f-0e5cc282c38b",
+    "realmName": "dev",
+    "error": null,
+    "userId": "b2de97ee-2771-494c-af86-c0da53182181",
+    "details": {
+        "realmId": "d401709e-ebdd-4710-b85f-0e5cc282c38b",
+        "user_id": "b2de97ee-2771-494c-af86-c0da53182181",
+        "ip_address": "1.1.1.1",
+        "client_id": "b27587e9-6184-4b18-9a06-6edd75c99089"
+    },
+    "ipAddress": "1.1.1.1",
+    "eventId": "1e3f8093-838d-4259-af05-8e9f4a82a6a5",
+    "representation": "{\"firstName\":\"user01@email.org\",\"lastName\":\"user01@email.org\",\"email\":\"user01@email.org\",\"emailVerified\":true,\"attributes\":{\"locale\":[\"\"]},\"enabled\":true,\"requiredActions\":[\"UPDATE_PROFILE\"],\"groups\":[]}",
+    "eventTime": "2024-06-24T12:17:47.458879684Z",
+    "time": 1719231467458
+}
+```
+
+### Admin event DELETE user
+
+```
+{
+    "eventType": "keycloak.admin-event",
+    "event": "DELETE",
+    "serverId": "qa",
+    "realmId": "d401709e-ebdd-4710-b85f-0e5cc282c38b",
+    "realmName": "dev",
+    "error": null,
+    "userId": "b2de97ee-2771-494c-af86-c0da53182181",
+    "details": {
+        "realmId": "d401709e-ebdd-4710-b85f-0e5cc282c38b",
+        "user_id": "b2de97ee-2771-494c-af86-c0da53182181",
+        "ip_address": "172.20.0.1",
+        "client_id": "b27587e9-6184-4b18-9a06-6edd75c99089"
+    },
+    "ipAddress": "172.20.0.1",
+    "eventId": "28b893fd-8524-4d8c-82cb-c907254f6f48",
+    "representation": null,
+    "eventTime": "2024-06-24T12:18:54.131073660Z",
+    "time": 1719231534130
 }
 ```
 

@@ -72,6 +72,11 @@ public class KcListener implements EventListenerProvider {
         return realmName;
     }
 
+    public String extractRealmName(String realmId) {
+        RealmModel realm = session.realms().getRealm(realmId);
+        return realm.getName();
+    }
+
     public static UUID extractUUID(String s) {
         if (s == null)
             return null;

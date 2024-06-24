@@ -11,6 +11,9 @@ import org.powerimo.keycloak.provider.KcListener;
 import org.powerimo.keycloak.provider.PublishingChannel;
 import org.powerimo.keycloak.provider.config.ChannelConfig;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Getter
 @Setter
 public abstract class AbstractChannel implements PublishingChannel {
@@ -89,15 +92,40 @@ public abstract class AbstractChannel implements PublishingChannel {
     protected abstract void event(Event event, KcListener listener);
 
     public KcEvent convert(AdminEvent event) {
+        Map<String, String> details = new HashMap<>();
+        var realmId = event.getRealmId();
+        String userId = null;
+        String ip = null;
+
+        // fill Auth details into event details
+        if (event.getAuthDetails() != null) {
+            if (realmId == null) {
+                realmId = event.getAuthDetails().getRealmId();
+            }
+            userId = event.getAuthDetails().getUserId();
+            ip = event.getAuthDetails().getIpAddress();
+
+            details.put("client_id", event.getAuthDetails().getClientId());
+            details.put("ip_address", ip);
+            details.put("realmId", realmId);
+            details.put("user_id", userId);
+        }
+
+        var realmName = realmId == null ? null : getListener().extractRealmName(realmId);
+
         return KcEvent.builder()
                 .eventType(KcConst.KC_ADMIN_EVENT)
+                .serverId(getListener().getListenerConfig().getServerId())
                 .realmId(event.getRealmId())
-                .realmName(getListener().extractRealmName(event))
+                .realmName(realmName)
                 .error(event.getError())
                 .event(event.getOperationType().name())
                 .time(event.getTime())
                 .eventId(event.getId())
                 .representation(event.getRepresentation())
+                .details(details)
+                .ipAddress(ip)
+                .userId(userId)
                 .build();
     }
 
