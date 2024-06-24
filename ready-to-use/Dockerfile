@@ -6,7 +6,7 @@ RUN apk add --no-cache wget unzip
 
 # Download release and unzip
 RUN mkdir -p /tmp/providers \
-    && wget -O /tmp/powerimo-providers.zip https://github.com/powerimo/powerimo-keycloak/releases/download/1.0.1/powerimo-keycloak-providers-1.0.1.zip \
+    && wget -O /tmp/powerimo-providers.zip https://github.com/powerimo/powerimo-keycloak/releases/download/1.1.0/powerimo-keycloak-providers-1.1.0.zip \
     && unzip /tmp/powerimo-providers.zip -d /tmp/providers
 
 # The base image of keycloak
