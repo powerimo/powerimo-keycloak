@@ -93,6 +93,8 @@ public abstract class AbstractChannel implements PublishingChannel {
 
     public KcEvent convert(AdminEvent event) {
         Map<String, String> details = new HashMap<>();
+        details.put("resource_path", event.getResourcePath());
+
         var realmId = event.getRealmId();
         String userId = null;
         String ip = null;

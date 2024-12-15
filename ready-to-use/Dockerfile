@@ -1,5 +1,5 @@
 # Interim image for using `wget`
-FROM alpine:3.12 as downloader
+FROM alpine:3 AS downloader
 
 # Installing wget and unzip
 RUN apk add --no-cache wget unzip
@@ -10,9 +10,9 @@ RUN mkdir -p /tmp/providers \
     && unzip /tmp/powerimo-providers.zip -d /tmp/providers
 
 # The base image of keycloak
-FROM quay.io/keycloak/keycloak:24.0.4 as base
+FROM quay.io/keycloak/keycloak:24.0.4 AS base
 
-# Copy provider files from the inteim container to Keycloak
+# Copy provider files from the interim container to Keycloak
 COPY --from=downloader /tmp/providers/* /opt/keycloak/providers/
 
 EXPOSE 8080
