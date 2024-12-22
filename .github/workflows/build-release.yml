@@ -25,21 +25,9 @@ jobs:
         echo "Release version detected: ${RELEASE_VERSION}"
 
     - name: Set up Java and configure Maven servers
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-        server-ids: |
-          ossrh
-          github
-        server-usernames: |
-          OSSRH_USERNAME
-          GH_ACTOR
-        server-passwords: |
-          OSSRH_PASSWORD
-          GH_TOKEN
-        overwrite-settings: true
+      run: |
+        cp .github/maven/settings.xml ~/.m2/settings.xml
+        cat ~/.m2/settings.xml
 
     - name: Check GPG
       run: |
@@ -54,4 +42,4 @@ jobs:
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
         GH_ACTOR: ${{ github.actor }}
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ github.token }}
