@@ -26,6 +26,7 @@ jobs:
 
     - name: Set up Java and configure Maven servers
       run: |
+        mkdir -p ~/.m2
         cp .github/maven/settings.xml ~/.m2/settings.xml
         cat ~/.m2/settings.xml
 
