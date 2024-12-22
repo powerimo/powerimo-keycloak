@@ -3,8 +3,6 @@ name: Build
 env:
   OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
   OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-  GH_ACTOR: ${{ github.actor }}
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
   push:
@@ -26,27 +24,22 @@ jobs:
         echo "RELEASE_VERSION=${RELEASE_VERSION}" >> $GITHUB_ENV
         echo "Release version detected: ${RELEASE_VERSION}"
 
-    - name: Add OSSRH server
+    - name: Set up Java and configure Maven servers
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-        server-id: ossrh
-        server-username: OSSRH_USERNAME
-        server-password: OSSRH_PASSWORD
+        server-ids: |
+          ossrh
+          github
+        server-usernames: |
+          OSSRH_USERNAME
+          GH_ACTOR
+        server-passwords: |
+          OSSRH_PASSWORD
+          GH_TOKEN
         overwrite-settings: true
-
-    - name: Add GitHub server
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-        server-id: github
-        server-username: GH_ACTOR
-        server-password: GH_TOKEN
-        overwrite-settings: false
 
     - name: Check GPG
       run: |
@@ -60,3 +53,5 @@ jobs:
         MAVEN_GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        GH_ACTOR: ${{ github.actor }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
