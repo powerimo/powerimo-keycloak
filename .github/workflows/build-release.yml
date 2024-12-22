@@ -1,4 +1,6 @@
 name: Build
+permissions:
+  packages: write
 
 env:
   OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
