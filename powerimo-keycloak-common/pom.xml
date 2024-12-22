@@ -160,7 +160,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>3.2.7</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -170,16 +170,21 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <signer>bc</signer>
+                </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.4.0</version>
+                <version>0.6.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>ossrh</publishingServerId>
-                    <tokenAuth>true</tokenAuth>
+                    <autoPublish>false</autoPublish>
+                    <waitUntil>uploaded</waitUntil>
+                    <deploymentName>${project.artifactId}:${project.version}</deploymentName>
                     <excludeArtifacts>
                         <excludeArtifact>powerimo-keycloak-example-consumer</excludeArtifact>
                         <excludeArtifact>powerimo-keycloak-provider</excludeArtifact>

@@ -1,4 +1,6 @@
 name: Build
+permissions:
+  packages: write
 
 env:
   OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
@@ -30,10 +32,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-        server-id: ossrh
-        server-username: OSSRH_USERNAME
-        server-password: OSSRH_PASSWORD
         overwrite-settings: true
+
+    - name: Configure Maven servers
+      run: |
+        mkdir -p ~/.m2
+        cp .github/maven/settings.xml ~/.m2/settings.xml
+        cat ~/.m2/settings.xml
 
     - name: Check GPG
       run: |
@@ -47,3 +52,5 @@ jobs:
         MAVEN_GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        GH_ACTOR: ${{ github.actor }}
+        GH_TOKEN: ${{ github.token }}
