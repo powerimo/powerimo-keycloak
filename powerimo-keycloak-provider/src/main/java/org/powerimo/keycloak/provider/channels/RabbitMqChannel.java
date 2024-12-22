@@ -71,6 +71,7 @@ public class RabbitMqChannel extends AbstractChannel {
         Map<String, Object> headers = new HashMap<>();
         headers.put(KcConst.EVENT_TYPE_HEADER, eventType);
         headers.put(KcConst.SERVER_ID_HEADER, getListener().getListenerConfig().getServerId());
+        headers.put(KcConst.SPRING_TYPE_ID_HEADER, payload.getClass().getCanonicalName());
 
         var properties = propertiesBuilder
                 .appId(KcListenerFactory.SPI_ID)

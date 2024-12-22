@@ -18,4 +18,5 @@ public class KcConst {
 
     public static final String EVENT_TYPE_HEADER = "Event-Type";
     public static final String SERVER_ID_HEADER = "Server-Id";
+    public static final String SPRING_TYPE_ID_HEADER = "__TypeId__";
 }
