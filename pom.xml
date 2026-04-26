@@ -21,13 +21,12 @@
 
     <properties>
         <revision>1.2.0-SNAPSHOT</revision>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <keycloak.version>24.0.4</keycloak.version>
-        <jackson.version>2.17.0</jackson.version>
-        <lombok.version>1.18.32</lombok.version>
-        <rabbit.version>5.21.0</rabbit.version>
+        <jackson.version>2.21.2</jackson.version>
+        <lombok.version>1.18.46</lombok.version>
+        <rabbit.version>5.30.0</rabbit.version>
     </properties>
 
     <licenses>
@@ -61,6 +60,20 @@
                     <version>3.1.1</version>
                     <configuration>
                         <skip>true</skip>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                    <configuration>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
             </plugins>

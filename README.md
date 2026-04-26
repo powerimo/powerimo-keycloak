@@ -1,94 +1,175 @@
-# Keycloak to Rabbit MQ provider
+# Keycloak to RabbitMQ Provider
 
 ## Overview
 
-The purpose of this provider is to publish Keycloak events to a RabbitMQ server via AMQP.
+A Keycloak SPI event listener that publishes authentication and administration events to a RabbitMQ server via AMQP. Both regular Keycloak events (`LOGIN`, `REGISTER`, etc.) and admin events (`CREATE`, `DELETE`, etc.) are supported. Events are serialized as JSON and sent to configurable exchanges with realm-level filtering.
+
+**Supported Keycloak version:** 24.x  
+**Java:** 17+
+
+## How It Works
+
+```
+Keycloak event/admin-event
+        │
+   KcListener (SPI: mq-sender)
+        │
+   HostChannel  ──fan-out──►  RabbitMqChannel (channel01)
+                          └──►  RabbitMqChannel (channel02)
+```
+
+Each channel independently filters events by realm and publishes to its own RabbitMQ exchange. A channel error never interrupts other channels.
 
 ## Installation
 
-### Basics
+### Direct JAR Installation
 
-According to the Keycloak documentation, all providers should be packaged into JAR files and copied to the "providers" directory. You can find more information [here](https://www.keycloak.org/server/configuration-provider).
+According to the [Keycloak documentation](https://www.keycloak.org/server/configuration-provider), providers must be placed in the `providers/` directory and Keycloak must be rebuilt:
 
-### Docker "Ready-to-use" 
+```bash
+cp powerimo-keycloak-provider-<version>.jar /opt/keycloak/providers/
+/opt/keycloak/bin/kc.sh build
+```
 
-The easiest way to automate the integration process is to build your own Docker image. You can see an example Dockerfile [here](ready-to-use)
+Pre-built provider JARs are available on the [Releases](https://github.com/powerimo/powerimo-keycloak/releases) page.
 
-When the provider installed correctly you can find the following lines in Keycloak log: 
-![START](/doc/html/start_provider.png)
+### Docker — Ready-to-Use Image
 
-### Docker compose
+The `ready-to-use/` directory contains a Dockerfile that builds a Keycloak image with the provider pre-installed. It downloads the release ZIP from GitHub and copies the JARs into the image automatically:
 
-The example is [here](keycloak-dev-stack). 
+```bash
+cd ready-to-use
+docker build -t rtu-keycloak .
+docker run --name=rtu-keycloak-instance \
+  -e KEYCLOAK_ADMIN=admin \
+  -e KEYCLOAK_ADMIN_PASSWORD=admin \
+  -v $(pwd)/mq-config:/etc/keycloak-mq-sender \
+  -p 1000:8080 \
+  rtu-keycloak start-dev
+```
+
+### Docker Compose (Dev Stack)
+
+The `keycloak-dev-stack/` directory contains a Docker Compose file that starts Keycloak and RabbitMQ together. First build the `local-keycloak` image from `ready-to-use/`:
+
+```bash
+# 1. Build the image
+cd ready-to-use && docker build -t local-keycloak . && cd ..
+
+# 2. Start the stack (Keycloak on :1000, RabbitMQ on :5672, management UI on :15672)
+cd keycloak-dev-stack && docker compose up
+```
+
+When the provider loads correctly, the Keycloak log will contain lines like:
+
+```
+mq-sender initialized...
+mq-sender initialization complete.
+mq-sender factory started
+```
 
 ## Setup
 
-After installing the provider, you need to configure it. The settings are stored in a YAML file, which should be accessible to the provider.
-By default, the path is `/etc/keycloak-mq-sender/config.yaml`. This can be changed by setting the `spi-event-listener-mq-sender-config-file` property as described in [Keycloak documentation](https://www.keycloak.org/server/configuration-provider).
-For Docker, it is often more convenient to use a volume mount when starting the container.
-
-### Configuration file
-
-Sample configuration file:
+The provider reads its settings from a YAML file. The default path is `/etc/keycloak-mq-sender/config.yaml`. To use a different path, set the Keycloak property `spi-event-listener-mq-sender-config-file`:
 
 ```
+--spi-event-listener-mq-sender-config-file=/path/to/config.yaml
+```
+
+For Docker, mount the config directory as a volume (see examples above).
+
+After starting Keycloak, activate the listener in the admin console: **Realm Settings → Events → Event listeners → add `mq-sender`**.
+
+### Configuration File
+
+```yaml
 enabled: true
-serverId: dev
+serverId: production
 channels:
-- id: channel01
-  channelClassName: RabbitMqChannel
-  realmName: dev
-  enabled: true
-  url: amqp://rabbitmq
-  user: guest
-  password: guest
-  exchange: amq.topic
-- id: channel02
-  realmName: dev
-  enabled: false
-  url: amqp://rabbitmq
-  user: guest
-  password: guest
-  exchange: amq.direct
+  - id: channel01
+    channelClassName: RabbitMqChannel
+    realmName: my-realm
+    enabled: true
+    url: amqp://rabbitmq
+    user: guest
+    password: guest
+    exchange: amq.topic
+  - id: channel02
+    channelClassName: RabbitMqChannel
+    realmName: ALL_REALMS
+    enabled: true
+    url: amqp://user:password@rabbitmq.internal:5672
+    user: keycloak
+    password: secret
+    exchange: amq.fanout
 ```
 
-Root properties:
-- enabled - disable\enable the provider 
-- serverId - the label used in the AMQP messages which allows to identify the source of events.
-- channels - set of channels, other words server\exchanges where events is publishing.  
+### Root Properties
 
-Channel properties:
-- id - unique channel ID.
-- channelClassName - the class used for publishing. Only value is accepted `RabbitMqChannel`.
-- realmName - (default ALL_REALMS). If specified the value except ALL_REALMS only events for this realm will be published on the channel.
-- url - URL of RabbitMQ server.
-- user - RabbitMQ user.
-- password - RabbitMQ user password.
-- exchange - Exchange name for publishing.
+| Property | Description |
+|---|---|
+| `enabled` | Enable or disable the provider entirely |
+| `serverId` | Arbitrary label added to every message (identifies the source server) |
+| `channels` | List of channel configurations |
 
-# Publishing
+### Channel Properties
 
-## Type events
+| Property | Required | Default | Description |
+|---|---|---|---|
+| `id` | yes | — | Unique channel identifier |
+| `channelClassName` | no | `RabbitMqChannel` | Publishing class. Only `RabbitMqChannel` is currently supported |
+| `realmName` | no | `ALL_REALMS` | Realm filter. Use `ALL_REALMS` or omit to publish events from all realms |
+| `enabled` | yes | — | Enable or disable this channel |
+| `url` | yes | — | RabbitMQ connection URL (`amqp://host` or `amqp://user:pass@host:port`) |
+| `user` | yes | — | RabbitMQ username |
+| `password` | yes | — | RabbitMQ password |
+| `exchange` | yes | — | Target RabbitMQ exchange name |
 
-Two types events are supported: `keycloak.event` and `keycloak.admin-event` which corresponds to the Keycloak classes `Event` and `AdminEvent`, respectively. 
+## Publishing
 
-## Message properties
+### Routing Keys
 
-An example published message in RabbitMQ can be viewed via the Management UI (https://www.rabbitmq.com/docs/management):
+| Event origin | Routing key |
+|---|---|
+| Regular event (`LOGIN`, `REGISTER`, …) | `keycloak.event` |
+| Admin event (`CREATE`, `DELETE`, …) | `keycloak.admin-event` |
 
-![MessageHeader](/doc/html/rmq_message.png)
+### Message Properties
 
-The following properties are used:
-- Routing key - can be `keycloak.event` or `keycloak.admin-event`. It could be useful for routing. 
-- Property `app_id` - always `mq-sender`.
-- Header `Event-Type` - original Keycloak event class name (`Event`, `AdminEvent`).
-- Header `Server-Id` - serverId property value from the configuration file.
+| Property | Value |
+|---|---|
+| `app_id` | `mq-sender` |
+| `content-type` | `application/json` |
+| `content-encoding` | `UTF-8` |
+| Header `Event-Type` | Keycloak Java class name (`Event` or `AdminEvent`) |
+| Header `Server-Id` | `serverId` from the configuration file |
+| Header `__TypeId__` | Fully-qualified Java class name of the payload (`org.powerimo.keycloak.KcEvent`) — used by Spring AMQP for automatic deserialization |
 
-## Payloads
+### Message Payload
 
-### Event LOGIN:
+All events are serialized as a single unified `KcEvent` JSON object:
 
+```json
+{
+    "eventType": "keycloak.event | keycloak.admin-event",
+    "event":     "LOGIN | REGISTER | CREATE | DELETE | ...",
+    "serverId":  "production",
+    "realmId":   "d401709e-ebdd-4710-b85f-0e5cc282c38b",
+    "realmName": "my-realm",
+    "error":     null,
+    "userId":    "7b7f293e-637b-4943-a4cd-e623e59ee9c7",
+    "details":   { "key": "value" },
+    "ipAddress": "192.168.1.1",
+    "eventId":   "411cd603-6be4-44b8-9dbb-daeabfda0300",
+    "representation": null,
+    "eventTime": "2024-06-16T14:47:02.287564251Z",
+    "time":      1718549222287
+}
 ```
+
+#### Example: LOGIN
+
+```json
 {
     "eventType": "keycloak.event",
     "event": "LOGIN",
@@ -112,9 +193,9 @@ The following properties are used:
 }
 ```
 
-### Event REGISTER (Google)
+#### Example: REGISTER (via Google)
 
-```
+```json
 {
     "eventType": "keycloak.event",
     "event": "REGISTER",
@@ -136,12 +217,12 @@ The following properties are used:
     "representation": null,
     "eventTime": "2024-06-24T05:52:54.094138862Z",
     "time": 1719208374093
-};
+}
 ```
 
-### Admin event CREATE user
+#### Example: Admin event — CREATE user
 
-```
+```json
 {
     "eventType": "keycloak.admin-event",
     "event": "CREATE",
@@ -158,15 +239,15 @@ The following properties are used:
     },
     "ipAddress": "1.1.1.1",
     "eventId": "1e3f8093-838d-4259-af05-8e9f4a82a6a5",
-    "representation": "{\"firstName\":\"user01@email.org\",\"lastName\":\"user01@email.org\",\"email\":\"user01@email.org\",\"emailVerified\":true,\"attributes\":{\"locale\":[\"\"]},\"enabled\":true,\"requiredActions\":[\"UPDATE_PROFILE\"],\"groups\":[]}",
+    "representation": "{\"firstName\":\"user01@email.org\",\"lastName\":\"user01@email.org\",\"email\":\"user01@email.org\",\"emailVerified\":true}",
     "eventTime": "2024-06-24T12:17:47.458879684Z",
     "time": 1719231467458
 }
 ```
 
-### Admin event DELETE user
+#### Example: Admin event — DELETE user
 
-```
+```json
 {
     "eventType": "keycloak.admin-event",
     "event": "DELETE",
@@ -189,23 +270,23 @@ The following properties are used:
 }
 ```
 
-## Java usage
+## Java Consumer
 
-The sample consumer is included in the sources as a module: [powerimo-keycloak-example-consumer](powerimo-keycloak-example-consumer).
+The `powerimo-keycloak-common` library provides `KcEvent` and `DefaultJsonSerializer` to make consuming messages straightforward. It is published to Maven Central:
 
-For consumers, the easiest way to convert MQ events is to use the common library shared in Maven Central:
-
-```
+```xml
 <dependency>
     <groupId>org.powerimo</groupId>
     <artifactId>powerimo-keycloak-common</artifactId>
-    <version>1.0.1</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
-Sample of consume
+A complete working consumer example is included in the `powerimo-keycloak-example-consumer` module.
 
-```
+### Minimal Consumer Example
+
+```java
 import com.rabbitmq.client.*;
 import org.powerimo.keycloak.MessageSerializer;
 import org.powerimo.keycloak.converters.DefaultJsonSerializer;
@@ -213,9 +294,9 @@ import org.powerimo.keycloak.converters.DefaultJsonSerializer;
 import java.nio.charset.StandardCharsets;
 
 public class KeycloakMqConsumer {
-    private final static String QUEUE_NAME = "keycloak-events";
-    private final static String HOST = "localhost";
-    private final static int PORT = 5672;
+    private static final String QUEUE_NAME = "keycloak-events";
+    private static final String HOST = "localhost";
+    private static final int PORT = 5672;
 
     public static void main(String[] args) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -228,27 +309,42 @@ public class KeycloakMqConsumer {
 
         DefaultConsumer consumer = new DefaultConsumer(channel) {
             @Override
-            public void handleDelivery(
-                    String consumerTag,
-                    Envelope envelope,
-                    AMQP.BasicProperties properties,
-                    byte[] body) {
-
+            public void handleDelivery(String consumerTag, Envelope envelope,
+                                       AMQP.BasicProperties properties, byte[] body) {
                 String message = new String(body, StandardCharsets.UTF_8);
-                System.out.println("[->]: " + message + "; exchange: " + envelope.getExchange() + "; routingKey: " + envelope.getRoutingKey() + "; envelope: " + envelope);
-
                 var event = serializer.deserializeEvent(message);
-                System.out.println("[e] Received event: " + event);
+                System.out.println("Received: " + event);
             }
         };
         channel.basicConsume(QUEUE_NAME, true, consumer);
-        System.out.println("* KeycloakMqConsumer started");
+        System.out.println("KeycloakMqConsumer started");
     }
-
 }
 ```
 
+### Spring AMQP
 
+The `__TypeId__` header is set to `org.powerimo.keycloak.KcEvent`, so Spring AMQP can deserialize messages automatically when using `Jackson2JsonMessageConverter`:
 
+```java
+@RabbitListener(queues = "keycloak-events")
+public void handleEvent(KcEvent event) {
+    // event is already deserialized
+}
+```
 
+## Building from Source
 
+```bash
+# Build and test all modules
+mvn clean package
+
+# Build with an explicit version
+mvn clean package -Drevision=1.2.0
+```
+
+The provider artifact is `powerimo-keycloak-provider/target/powerimo-keycloak-provider-<version>.jar`. It is a shaded (uber) JAR that includes `amqp-client` but excludes Keycloak and Jackson libraries, which are provided by the Keycloak runtime.
+
+## License
+
+Apache License 2.0
