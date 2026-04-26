@@ -278,7 +278,7 @@ The `powerimo-keycloak-common` library provides `KcEvent` and `DefaultJsonSerial
 <dependency>
     <groupId>org.powerimo</groupId>
     <artifactId>powerimo-keycloak-common</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 </dependency>
 ```
 
